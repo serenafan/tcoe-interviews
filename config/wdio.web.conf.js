@@ -1,6 +1,6 @@
 require("dotenv").config();
 const { config } = require("./wdio.shared.conf");
-const { baseUrl } = require("../scenarios/uiplayground/test/utilities/constants");
+const { baseUrl } = require("../utilities/constants");
 const ENV = process.env.ENV;
 const LOG_LEVEL = process.env.LOG_LEVEL;
 
