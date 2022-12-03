@@ -1,8 +1,8 @@
 const ImageGalleryPage = require("../pageobjects/imageGallery.page");
 const expectchai = require("chai").expect;
-const { parseJsontestData } = require("../utilities/parseJsonFromFile");
+const { parseJsontestData } = require("../../../../utilities/parseJsonFromFile");
 
-let test_data = parseJsontestData(
+let testData = parseJsontestData(
   "scenarios/uiplayground/test/testData/test_data_image_gallery.json"
 );
 
@@ -43,7 +43,7 @@ describe("Given: user wants to check test image gallery functionality of CNN web
     });
 
     it("then image caption and credit should be displayed correctly", async () => {
-      const { location, country, description, photographer } = test_data[0];
+      const { location, country, description, photographer } = testData[0];
       const imageCaption = await ImageGalleryPage.getCaptionText();
       const imageCredit = await ImageGalleryPage.getCreditText();
       const expectedCaption = `${location}, ${country}: ${description}`;
