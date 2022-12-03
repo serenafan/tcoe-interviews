@@ -71,14 +71,6 @@ class VideoPage extends Page {
   }
 
   /**
-   * method to get progress of current video that is playing
-   * @returns progress of video
-   */
-  async getProgress() {
-    return await super.getAttributeValue(this.progressBar, "aria-valuetext");
-  }
-
-  /**
    * method to get total number of video from suggested list by counting it
    * @returns total number of suggested video by count
    */
@@ -110,19 +102,36 @@ class VideoPage extends Page {
   }
 
   /**
-   * method to get current playing title
-   * @returns current plating video title
+   * method to assert current video is playing by checking progress is not at 00:00
    */
-  async getNowPlayingTitle() {
-    return await super.getElementText(this.nowPlayingVideoTitle);
+  async assertVideoPlay() {
+    const progress = super.getAttributeValue(
+      this.progressBar,
+      "aria-valuetext"
+    );
+    expectchai(progress).to.not.be.equals("00:00");
   }
 
   /**
-   * method to get suggested video headline from list
-   * @returns current plating video headline
+   * method to assert total videos count in suggested video list should show correctly
    */
-  async getSuggestedVidoTitle(index) {
-    return await super.getElementText(this.activeVideoHeadlines[index]);
+  async assertSuggestVideoCount() {
+    const countFromSuggestedList = await this.getVideoCountFromList();
+    const countFromTrendingText = await this.getVideoCountFromText();
+    expectchai(countFromTrendingText).to.be.equals(countFromSuggestedList);
+  }
+
+  /**
+   * method to assert current playing title should be consistent with suggested video title to indicate suggested video is playing
+   */
+  async assertSuggestVideoPlaying() {
+    const nowPlayingVideoTitle = await super.getElementText(
+      this.nowPlayingVideoTitle
+    );
+    const suggestedVidoTitle = await super.getElementText(
+      this.activeVideoHeadlines[0]
+    );
+    expectchai(nowPlayingVideoTitle).to.be.equals(suggestedVidoTitle);
   }
 }
 

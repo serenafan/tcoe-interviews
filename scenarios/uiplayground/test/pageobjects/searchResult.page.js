@@ -1,5 +1,6 @@
 const { default: ChromeDriverService } = require("wdio-chromedriver-service");
 const Page = require("./page");
+const expectchai = require("chai").expect;
 
 class SearchResultPage extends Page {
   /**
@@ -34,62 +35,57 @@ class SearchResultPage extends Page {
   }
 
   /**
-   * This method gets input value from search bar
-   * @returns input value of seach bar
-   */
-  async getSearchInputValue() {
-    return await super.getValue(this.searchInput);
-  }
-
-  /**
    * clear search result
    */
   async ClearSearch() {
     await super.clickElement(this.searchClearBtn);
   }
 
-  /**
-   * This method search result list after valid search input is given
-   * @returns search result list
-   */
-  async getSearchResultList() {
-    return await super.getVisibleElement(this.resultList);
+  async assertSearchResultShown() {
+    expect(await super.getVisibleElement(this.resultList)).toBeDisplayed();
   }
 
   /**
-   * This method returns boolean value if headlines in result list contains keyword that was searched
-   * @returns boolean value if keyword is in headline
+   * This method assert headlines in result list contains keyword that was searched
    */
-  async resultHeadlineIncludeKeyword(keyword) {
+  async assertHeadlineHasKeyword(keyword) {
     const includeKeyword = (await this.headlines).some(async (headline) => {
       (await super.getElementText(headline)).includes(keyword);
     });
-    return includeKeyword;
+    expectchai(includeKeyword).to.be.true;
   }
 
   /**
-   * This method returns boolean value if result count text contains keyword that was searched
-   * @returns boolean value if keyword in result count text
+   * This method assert result count text contains keyword that was searched
    */
-  async resultCountIncludeKeyword(keyword) {
+  async assertResultCountHasKeyword(keyword) {
     const resultCount = await super.getElementText(this.resultCountText);
-    return (await resultCount.includes(keyword)) ? true : false;
+    const isInclude = resultCount.includes(keyword) ? true : false;
+    expectchai(isInclude).to.be.true;
   }
 
   /**
-   * This method returns message title when no result is found after search
-   * @returns message title when no result returned from search
+   * This method assert title message correctness when no result is found after search
    */
-  async noResultTitleText() {
-    return await super.getElementText(this.noResultTitle);
+  async assertNoResultTitleText(expectedResultMsg) {
+    const noResultTitle = await super.getElementText(this.noResultTitle);
+    expectchai(noResultTitle).to.have.string(expectedResultMsg);
   }
 
   /**
-   * This method returns suggestion text when no result is found after search
-   * @returns suggestion text when no result returned from search
+   * This method asserts suggestion text is shown when no result is found after search
    */
-  async getNoResultSuggests() {
-    return await super.getVisibleElement(this.noResultSuggests);
+  async assertNoResultSuggestsShown() {
+    expect(
+      await super.getVisibleElement(this.noResultSuggests)
+    ).toBeDisplayed();
+  }
+
+  /**
+   * This method asserts search input is cleared after click clear button
+   */
+  async assertSearchInputCleared() {
+    expectchai(await super.getValue(this.searchInput)).to.be.empty;
   }
 }
 

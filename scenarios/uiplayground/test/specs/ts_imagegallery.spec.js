@@ -1,6 +1,7 @@
 const ImageGalleryPage = require("../pageobjects/imageGallery.page");
-const expectchai = require("chai").expect;
-const { parseJsontestData } = require("../../../../utilities/parseJsonFromFile");
+const {
+  parseJsontestData,
+} = require("../../../../utilities/parseJsonFromFile");
 
 let testData = parseJsontestData(
   "scenarios/uiplayground/test/testData/test_data_image_gallery.json"
@@ -12,43 +13,26 @@ describe("Given: user wants to check test image gallery functionality of CNN web
   });
 
   context("When: user opens image gallery page in browser", () => {
-    let totalImgSlides;
     it("then current image indicator should update after user click on next image slide", async () => {
-      totalImgSlides = await ImageGalleryPage.getTotalImageFromSlides();
-      let count = 1;
-      while (count < totalImgSlides + 1) {
-        const currentImageIndicator =
-          await ImageGalleryPage.getCurrentImageIndicator();
-        expectchai(currentImageIndicator).to.be.equals(count);
-        await ImageGalleryPage.slideToNextImage();
-        count++;
-      }
+      await ImageGalleryPage.assertImgUpdateOnNext();
     });
 
     it("then current image indicator should update after user click on previous image slide", async () => {
-      let count = totalImgSlides;
-      while (count > 0) {
-        await ImageGalleryPage.slideToPrevImage();
-        const currentImageIndicator =
-          await ImageGalleryPage.getCurrentImageIndicator();
-        expectchai(currentImageIndicator).to.be.equals(count);
-        count--;
-      }
+      await ImageGalleryPage.assertImgUpdateOnPrevious();
     });
 
     it("then total number of images should be displayed correctly", async () => {
-      const totalImgFromIndicator =
-        await ImageGalleryPage.getTotalImageFromIndicator();
-      expectchai(totalImgSlides).to.be.equals(totalImgFromIndicator);
+      await ImageGalleryPage.assertImgCount();
     });
 
-    it("then image caption and credit should be displayed correctly", async () => {
-      const { location, country, description, photographer } = testData[0];
-      const imageCaption = await ImageGalleryPage.getCaptionText();
-      const imageCredit = await ImageGalleryPage.getCreditText();
-      const expectedCaption = `${location}, ${country}: ${description}`;
-      expectchai(imageCaption).to.be.equals(expectedCaption);
-      expectchai(imageCredit).to.be.equals(photographer);
-    });
+    testData.forEach(
+      async ({ location, country, description, photographer }) => {
+        it("then image caption and credit should be displayed correctly", async () => {
+          const expectedCaption = `${location}, ${country}: ${description}`;
+          await ImageGalleryPage.assertCaptionText(expectedCaption);
+          await ImageGalleryPage.assertCreditText(photographer);
+        });
+      }
+    );
   });
 });
