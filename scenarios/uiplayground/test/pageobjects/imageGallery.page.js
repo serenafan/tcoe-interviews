@@ -1,4 +1,5 @@
 const Page = require("./page");
+const expectchai = require("chai").expect;
 
 /**
  * sub page containing specific selectors and methods for a specific page
@@ -52,8 +53,12 @@ class ImageGalleryPage extends Page {
    * This method gets total number of images by counting how many slides there are
    * @returns total image number from slides
    */
-  async getTotalImageFromSlides() {
-    return await super.getElementCount(this.imageSlides);
+  async getSlideIndexArray() {
+    const totalImgSlides = await super.getElementCount(this.imageSlides);
+    const slideIndexArray = [...new Array(totalImgSlides).keys()].map(
+      (el) => el + 1
+    );
+    return slideIndexArray;
   }
 
   /**
@@ -81,19 +86,52 @@ class ImageGalleryPage extends Page {
   }
 
   /**
-   * This method gets caption of the image that is current presented
-   * @returns text of caption
+   * This method assert current image updates when click on next button
    */
-  async getCaptionText() {
-    return await super.getElementText(this.imgCaption);
+  async assertImgUpdateOnNext() {
+    const slideIndexArray = await this.getSlideIndexArray();
+    for (const index of slideIndexArray) {
+      const currentImageIndicator = await this.getCurrentImageIndicator();
+      expectchai(currentImageIndicator).to.be.equals(index);
+      await this.slideToNextImage();
+    }
   }
 
   /**
-   * This method gets credit of the image that is current presented
-   * @returns text of credit
+   * This method assert current image updates when click on previous button
    */
-  async getCreditText() {
-    return await super.getElementText(this.imgCredit);
+  async assertImgUpdateOnPrevious() {
+    const slideIndexArrayReversed = (await this.getSlideIndexArray()).reverse();
+    for (const index of slideIndexArrayReversed) {
+      await this.slideToPrevImage();
+      const currentImageIndicator = await this.getCurrentImageIndicator();
+      expectchai(currentImageIndicator).to.be.equals(index);
+    }
+  }
+
+  /**
+   * This method assert total image indicator display should match with actual slides number
+   */
+  async assertImgCount() {
+    const totalImgSlides = (await this.getSlideIndexArray()).length;
+    const totalImgFromIndicator = await this.getTotalImageFromIndicator();
+    expectchai(totalImgSlides).to.be.equals(totalImgFromIndicator);
+  }
+
+  /**
+   * This method assert caption text should match with expected caption
+   */
+  async assertCaptionText(expectedCaption) {
+    const imageCaption = await super.getElementText(this.imgCaption);
+    expectchai(imageCaption).to.be.equals(expectedCaption);
+  }
+
+  /**
+   * This method assert credit text should match with expected credit
+   */
+  async assertCreditText(expectedCredit) {
+    const imageCredit = await super.getElementText(this.imgCredit);
+    expectchai(imageCredit).to.be.equals(expectedCredit);
   }
 }
 
